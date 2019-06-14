@@ -25,7 +25,7 @@ SECRET_KEY = '3ino+6-xrv(zpv3kdcvyo*hh56x2vd56f@^ck*u@ie!%dy7y0b'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['asanagithub.herokuapp.com']
+ALLOWED_HOSTS = ['asanagithub.herokuapp.com','127.0.0.1']
 
 
 # Application definition
