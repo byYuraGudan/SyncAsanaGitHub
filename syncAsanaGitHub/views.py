@@ -40,15 +40,9 @@ def hello(request):
     # If request reached this point we are in a good shape
     # Process the GitHub events
     event = request.META.get('HTTP_X_GITHUB_EVENT', 'ping')
+    return HttpResponse(request.body)
 
-    if event == 'ping':
-        return HttpResponse('pong')
-    elif event == 'push':
-        # Deploy some code for example
-        return HttpResponse('success')
-
-    # In case we receive an event that's not ping or push
-    return HttpResponse(status=204)
+    # In case we receive an event that's not ping or pus
 
 
 def index(request):
