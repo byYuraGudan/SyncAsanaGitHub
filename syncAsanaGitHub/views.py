@@ -42,6 +42,11 @@ def hello(request):
     event = request.META.get('HTTP_X_GITHUB_EVENT', 'ping')
     return HttpResponse(request.body)
 
+@require_POST
+@csrf_exempt
+def asana(request):
+    return HttpResponse("OK")
+
     # In case we receive an event that's not ping or pus
 
 
