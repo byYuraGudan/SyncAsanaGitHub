@@ -132,3 +132,5 @@ MIDDLEWARE_CLASSES = (
     'whitenoise.middleware.WhiteNoiseMiddleware',
 )
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+GITHUB_WEBHOOK_KEY = 'qitwY8L9cbUN0xHnSS5Tshh5PkOYAaKlbhzRpK3brXPdk809we'
