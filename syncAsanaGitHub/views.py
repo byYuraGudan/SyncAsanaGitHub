@@ -45,8 +45,8 @@ def hello(request):
 
 @csrf_exempt
 def asana(request):
-    if request.hearders['X-Hook-Secret']:
-        return HttpResponse("OK",headers={'X-Hook-Secret':request.hearders['X-Hook-Secret']})
+    if request.headers['X-Hook-Secret']:
+        return HttpResponse("OK",headers={'X-Hook-Secret':request.headers['X-Hook-Secret']})
     else:
         return HttpResponse("NOK")
 
