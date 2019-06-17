@@ -49,15 +49,13 @@ def hello(request):
 
 @csrf_exempt
 def asana(request):
-    request_logger.info(str(request.headers))
+    request_logger.info(str(request.body))
     if request.headers.get('X-Hook-Secret'):
         res = HttpResponse("OK",status=200)
         res['X-Hook-Secret']=request.headers.get('X-Hook-Secret')
         return res
     else:
         return HttpResponse("NOK",status=200)
-
-    # In case we receive an event that's not ping or pus
 
 
 def index(request):
