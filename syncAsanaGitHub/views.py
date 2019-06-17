@@ -1,5 +1,6 @@
 import hmac
 from hashlib import sha1
+import logging
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
@@ -9,6 +10,9 @@ from django.utils.encoding import force_bytes
 
 import requests
 from ipaddress import ip_address, ip_network
+
+
+request_logger = logging.getLogger('django.request')
 
 @require_POST
 @csrf_exempt
@@ -45,8 +49,9 @@ def hello(request):
 
 @csrf_exempt
 def asana(request):
-    if request.headers['X-Hook-Secret']:
-        return HttpResponse("OK",headers={'X-Hook-Secret':request.headers['X-Hook-Secret']})
+    request_logger.info(str(request.headers))
+    if request.headers.get('X-Hook-Secret'):
+        return HttpResponse("OK",headers={'X-Hook-Secret':request.headers.get('X-Hook-Secret')})
     else:
         return HttpResponse("NOK")
 
