@@ -42,10 +42,13 @@ def hello(request):
     event = request.META.get('HTTP_X_GITHUB_EVENT', 'ping')
     return HttpResponse(request.body)
 
-@require_POST
+
 @csrf_exempt
 def asana(request):
-    return HttpResponse("OK")
+    if request.hearders['X-Hook-Secret']:
+        return HttpResponse("OK",headers={'X-Hook-Secret':request.hearders['X-Hook-Secret']})
+    else:
+        return HttpResponse("NOK")
 
     # In case we receive an event that's not ping or pus
 
