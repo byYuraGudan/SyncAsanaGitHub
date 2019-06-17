@@ -51,9 +51,11 @@ def hello(request):
 def asana(request):
     request_logger.info(str(request.headers))
     if request.headers.get('X-Hook-Secret'):
-        return HttpResponse("OK",headers={'X-Hook-Secret':request.headers.get('X-Hook-Secret')})
+        res = HttpResponse("OK",status=200)
+        res['X-Hook-Secret']=request.headers.get('X-Hook-Secret')
+        return res
     else:
-        return HttpResponse("NOK")
+        return HttpResponse("NOK",status=200)
 
     # In case we receive an event that's not ping or pus
 
