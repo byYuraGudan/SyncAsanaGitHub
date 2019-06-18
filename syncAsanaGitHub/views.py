@@ -46,16 +46,24 @@ def hello(request):
     event = request.META.get('HTTP_X_GITHUB_EVENT', 'ping')
     return HttpResponse(request.body)
 
+#
+# @csrf_exempt
+# def asana(request):
+#     request_logger.info(str(request.body))
+#     if request.headers.get('X-Hook-Secret'):
+#         res = HttpResponse("OK",status=200)
+#         res['X-Hook-Secret']=request.headers.get('X-Hook-Secret')
+#         return res
+#     else:
+#         return HttpResponse("NOK",status=200)
+
+
 
 @csrf_exempt
 def asana(request):
-    request_logger.info(str(request.body))
-    if request.headers.get('X-Hook-Secret'):
-        res = HttpResponse("OK",status=200)
-        res['X-Hook-Secret']=request.headers.get('X-Hook-Secret')
-        return res
-    else:
-        return HttpResponse("NOK",status=200)
+    request_logger.info(request.headers)
+    request_logger.info(request.body)
+    return HttpResponse("OK",status=200)
 
 
 def index(request):
