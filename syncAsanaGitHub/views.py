@@ -17,6 +17,8 @@ request_logger = logging.getLogger('django.request')
 @require_POST
 @csrf_exempt
 def hello(request):
+    request_logger.info(request.headers)
+    request_logger.info(request.body)
     # Verify if request came from GitHub
     forwarded_for = u'{}'.format(request.META.get('HTTP_X_FORWARDED_FOR'))
     client_ip_address = ip_address(forwarded_for)
