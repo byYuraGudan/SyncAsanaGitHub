@@ -1,6 +1,7 @@
 import hmac
 from hashlib import sha1
 import logging
+import json
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
@@ -8,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.encoding import force_bytes
 
+from syncAsanaGitHub import sync_asana,sync_github
 import requests
 from ipaddress import ip_address, ip_network
 
@@ -17,7 +19,6 @@ request_logger = logging.getLogger('django.request')
 @require_POST
 @csrf_exempt
 def hello(request):
-    request_logger.info(request.headers)
     request_logger.info(request.body)
     # Verify if request came from GitHub
     forwarded_for = u'{}'.format(request.META.get('HTTP_X_FORWARDED_FOR'))
@@ -63,8 +64,10 @@ def hello(request):
 
 @csrf_exempt
 def asana(request):
-    request_logger.info(request.headers)
     request_logger.info(request.body)
+    if request.method == "POST":
+        body = json.loads(request.body)
+        sync_github.check_request(body['events'])
     return HttpResponse("OK",status=200)
 
 
