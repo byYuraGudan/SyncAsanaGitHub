@@ -1,8 +1,7 @@
 import hmac
 from hashlib import sha1
 import logging
-import json
-
+from syncAsanaGitHub.json_convert import json2obj
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from django.views.decorators.csrf import csrf_exempt
@@ -61,13 +60,13 @@ def hello(request):
 #         return HttpResponse("NOK",status=200)
 
 
-
 @csrf_exempt
 def asana(request):
     request_logger.info(request.body)
     if request.method == "POST":
-        body = json.loads(request.body)
-        sync_github.check_request(body['events'])
+        body = json2obj(request.body)
+        print(body)
+        sync_github.check_request(body.events)
     return HttpResponse("OK",status=200)
 
 

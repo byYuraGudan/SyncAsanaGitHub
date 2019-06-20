@@ -3,7 +3,12 @@ import json
 import logging
 
 from github import Github
+from syncAsanaGitHub.models import  IdentityID
+from syncAsanaGitHub.json_convert import json2obj
+
 import asana
+
+request_logger = logging.getLogger('django.request')
 
 
 
@@ -12,20 +17,35 @@ if 'ASANA_ACCESS_TOKEN' in os.environ:
 
 if 'GITHUB_ACCESS_TOKEN' in os.environ:
     gitClient = Github(os.environ['GITHUB_ACCESS_TOKEN'])
+    repoGit = gitClient.get_repo("byYuraGudan/SyncAsanaGitHub")
 
-request_logger = logging.getLogger('django.request')
 
-def create_issue(params):
-    task = asanaClient.tasks.find_by_id(params['resource'])
-    request_logger.info('Task - %s'%task)
-    repo = gitClient.get_repo("byYuraGudan/SyncAsanaGitHub")
-    print(repo)
-    repo.create_issue(title=task['name'],body=task['notes'])
+def create_issue(asanaTask):
+    currentTask = asanaClient.tasks.find_by_id(asanaTask.resource)
+    currentTask = json2obj(json.dumps(currentTask))
+    new_issue = repoGit.create_issue(title=currentTask.name, body=currentTask.notes)
+    IdentityID.objects.create(asana_id=asanaTask.resource, github_id=new_issue.number)
+    request_logger.info(currentTask)
+    request_logger.info(new_issue)
 
+def change_issue(asanaTask):
+    currentTask = asanaClient.tasks.find_by_id(asanaTask.resource)
+    currentTask = json2obj(json.dumps(currentTask))
 
 def check_request(events):
     request_logger.info(events)
     if len(events) > 0:
         for event in events:
-            if event.get('type') == "task":
-                create_issue(event)
+            if event.type == "task":
+                task_event(event)
+
+
+def task_event(event):
+    if event.action == 'added':
+        create_issue(event)
+    if event.action == 'changed':
+        pass
+
+def comment_event(event):
+    pass
+
