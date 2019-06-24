@@ -5,6 +5,7 @@ from syncAsanaGitHub import views
 
 urlpatterns = [
     url(r'^hello/$', views.hello, name='hello'),
+    url(r'^github/',views.github,name='github'),
     path('',views.index,name='index'),
     url(r'^asana/$', views.asana, name='asana')
 ]

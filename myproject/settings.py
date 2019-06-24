@@ -134,3 +134,14 @@ MIDDLEWARE_CLASSES = (
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 GITHUB_WEBHOOK_KEY = 'qitwY8L9cbUN0xHnSS5Tshh5PkOYAaKlbhzRpK3brXPdk809we'
+
+ASANA_SETTINGS = {"workspace": {
+                                "id": 1126657027852031,
+                                "gid": "1126657027852031",
+                                "resource_type": "workspace"},
+
+                  'project':{
+                                "id": 1127318215881835,
+                                "gid": "1127318215881835",
+                                "resource_type": "project"}
+                  }

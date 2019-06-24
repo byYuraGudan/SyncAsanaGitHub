@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.encoding import force_bytes
 
+import json
 from syncAsanaGitHub import sync_asana,sync_github
 import requests
 from ipaddress import ip_address, ip_network
@@ -45,8 +46,8 @@ def hello(request):
 
     # If request reached this point we are in a good shape
     # Process the GitHub events
-    event = request.META.get('HTTP_X_GITHUB_EVENT', 'ping')
-    return HttpResponse(request.body)
+
+    return HttpResponse("OK",status=200)
 
 #
 # @csrf_exempt
@@ -59,6 +60,12 @@ def hello(request):
 #     else:
 #         return HttpResponse("NOK",status=200)
 
+@csrf_exempt
+def github(request):
+    obj = json.loads(request.body)
+    request_logger.info(obj)
+    request_logger.info(type(obj))
+    return HttpResponse("OK",status=200)
 
 @csrf_exempt
 def asana(request):
