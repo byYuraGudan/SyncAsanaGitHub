@@ -62,9 +62,23 @@ def hello(request):
 
 @csrf_exempt
 def github(request):
+    request_logger.info(request.content_type)
     obj = json.loads(request.body)
     request_logger.info(obj)
+    request_logger.info(obj)
     request_logger.info(type(obj))
+    if obj.get('action') == 'opened':
+            print('opened')
+            sync_asana.added_task(obj.get('issue'))
+            return HttpResponse("OK", status=201)
+    if obj.get('action') == 'edited':
+            print('edited')
+            # sync_asana.changed_task(obj.get('issue'))
+            return HttpResponse("OK", status=200)
+    if obj.get('action') == 'closed':
+            print('closed')
+            return HttpResponse("OK", status=200)
+
     return HttpResponse("OK",status=200)
 
 @csrf_exempt

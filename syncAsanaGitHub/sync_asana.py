@@ -14,11 +14,16 @@ if 'GITHUB_ACCESS_TOKEN' in os.environ:
 
 
 def added_task(obj):
-    taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params={'name':obj['title'],'notes':obj['body']})
-    IdentityID.objects.create(asana_id=taskAsana['id'], github_id=obj['id'])
+    paramTask = {'name':obj['title'],
+                 'notes':obj['body'],
+                 'projects':[ASANA_SETTINGS['project']['id']]
+                 }
+    taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
+    IdentityID.objects.create(asana_id=taskAsana['id'], github_id=obj['number'])
 
 def changed_task(obj):
-    client.tasks.update('id_task',params={'completed':True if obj['state'] == 'close' else False})
+    # client.tasks.update('id_task',params={'completed':True if obj['state'] == 'close' else False})
+    pass
 
 def added_comment_to_task(obj):
     client.tasks.add_comment('id_task',params={'text':'text'})
