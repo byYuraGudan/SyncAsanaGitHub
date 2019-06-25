@@ -20,6 +20,13 @@ request_logger = logging.getLogger('django.request')
 @require_POST
 @csrf_exempt
 def hello(request):
+    # If request reached this point we are in a good shape
+    # Process the GitHub events
+    return HttpResponse("OK",status=200)
+
+@require_POST
+@csrf_exempt
+def github(request):
     request_logger.info(request.body)
     # Verify if request came from GitHub
     forwarded_for = u'{}'.format(request.META.get('HTTP_X_FORWARDED_FOR'))
@@ -45,15 +52,6 @@ def hello(request):
     if not hmac.compare_digest(force_bytes(mac.hexdigest()), force_bytes(signature)):
         return HttpResponseForbidden('Permission denied.')
 
-    # If request reached this point we are in a good shape
-    # Process the GitHub events
-
-    return HttpResponse("OK",status=200)
-
-
-
-@csrf_exempt
-def github(request):
     request_logger.info(request.body)
     obj = json.loads(request.body)
     try:
@@ -95,7 +93,7 @@ def asana(request):
     #     sync_github.check_request(body.events)
     return HttpResponse("OK",status=200)
 
-
+@require_POST
 @csrf_exempt
 def asana_subscribe_webhooks(request):
     request_logger.info(str(request.body))
