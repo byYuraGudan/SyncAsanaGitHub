@@ -22,8 +22,17 @@ def added_task(obj):
     IdentityID.objects.create(asana_id=taskAsana['id'], github_id=obj['number'])
 
 def changed_task(obj):
-    # client.tasks.update('id_task',params={'completed':True if obj['state'] == 'close' else False})
+    asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
+    paramTask = {'name':obj['title'],
+                 'notes':obj['body'],
+                 'projects':[ASANA_SETTINGS['project']['id']]
+                 }
+    client.tasks.update(asanaID[0].asana_id,params=paramTask)
     pass
+
+def closed_task(obj):
+    asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
+    client.tasks.update(asanaID[0].asana_id, params={'completed': True if obj['state'] == 'close' else False})
 
 def added_comment_to_task(obj):
     client.tasks.add_comment('id_task',params={'text':'text'})

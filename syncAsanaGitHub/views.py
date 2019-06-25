@@ -10,6 +10,7 @@ from django.utils.encoding import force_bytes
 
 import json
 from syncAsanaGitHub import sync_asana,sync_github
+from syncAsanaGitHub.models import IdentityID
 import requests
 from ipaddress import ip_address, ip_network
 
@@ -73,10 +74,13 @@ def github(request):
             return HttpResponse("OK", status=201)
     if obj.get('action') == 'edited':
             print('edited')
-            # sync_asana.changed_task(obj.get('issue'))
+            sync_asana.changed_task(obj.get('issue'))
             return HttpResponse("OK", status=200)
     if obj.get('action') == 'closed':
             print('closed')
+            return HttpResponse("OK", status=200)
+    if obj.get('action') == 'created':
+            print('created')
             return HttpResponse("OK", status=200)
 
     return HttpResponse("OK",status=200)
@@ -92,4 +96,6 @@ def asana(request):
 
 
 def index(request):
+    print(dir(IdentityID.objects))
+    print(list(IdentityID.objects.filter(github_id=16)))
     return  HttpResponse('Hello, world. You`are at the sync index')
