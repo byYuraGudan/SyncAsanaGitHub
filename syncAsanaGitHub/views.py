@@ -104,5 +104,5 @@ def asana_subscribe_webhooks(request):
 def index(request):
     print(dir(IdentityID.objects))
     for i in list(IdentityID.objects.all()):
-        print(i)
+        print("%s - %s"%(i.github_id,i.asana_id))
     return  HttpResponse('Hello, world. You`are at the sync index')
