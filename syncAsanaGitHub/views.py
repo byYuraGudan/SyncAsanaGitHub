@@ -54,26 +54,26 @@ def hello(request):
 
 @csrf_exempt
 def github(request):
-    request_logger.info(request.content_type)
+    request_logger.info(request.body)
     obj = json.loads(request.body)
-    request_logger.info(obj)
-    request_logger.info(obj)
-    request_logger.info(type(obj))
-    if obj.get('action') == 'opened':
-            print('opened')
-            sync_asana.added_task(obj.get('issue'))
-            return HttpResponse("OK", status=201)
-    if obj.get('action') == 'edited':
-            print('edited')
-            sync_asana.changed_task(obj.get('issue'))
-            return HttpResponse("OK", status=200)
-    if obj.get('action') == 'closed':
-            print('closed')
-            return HttpResponse("OK", status=200)
-    if obj.get('action') == 'created':
-            print('created')
-            return HttpResponse("OK", status=200)
-
+    try:
+        if obj.get('action') == 'opened':
+                print('opened')
+                sync_asana.added_task(obj.get('issue'))
+                return HttpResponse("OK", status=201)
+        if obj.get('action') == 'edited':
+                print('edited')
+                sync_asana.changed_task(obj.get('issue'))
+                return HttpResponse("OK", status=200)
+        if obj.get('action') == 'closed':
+                print('closed')
+                return HttpResponse("OK", status=200)
+        if obj.get('action') == 'created':
+                print('created')
+                return HttpResponse("OK", status=200)
+    except AttributeError as err:
+        request_logger.info("Error - %s"%err)
+        return HttpResponse("Error - Bad request",status=500)
     return HttpResponse("OK",status=200)
 
 @csrf_exempt
@@ -84,19 +84,19 @@ def asana(request):
     #     sync_github.check_request(body.events)
     return HttpResponse("OK",status=200)
 
-#
-#
-# @csrf_exempt
-# def asana(request):
-#     request_logger.info(str(request.body))
-#     if request.headers.get('X-Hook-Secret'):
-#         res = HttpResponse("OK",status=200)
-#         res['X-Hook-Secret']=request.headers.get('X-Hook-Secret')
-#         return res
-#     else:
-#         return HttpResponse("NOK",status=200)
+
+@csrf_exempt
+def asana_subscribe_webhooks(request):
+    request_logger.info(str(request.body))
+    if request.headers.get('X-Hook-Secret'):
+        res = HttpResponse("OK",status=200)
+        res['X-Hook-Secret']=request.headers.get('X-Hook-Secret')
+        return res
+    else:
+        return HttpResponse("NOK",status=200)
 
 def index(request):
     print(dir(IdentityID.objects))
-    print(list(IdentityID.objects.filter(github_id=16)))
+    for i in list(IdentityID.objects.all()):
+        print(i)
     return  HttpResponse('Hello, world. You`are at the sync index')
