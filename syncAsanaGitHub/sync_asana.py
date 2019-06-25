@@ -32,9 +32,7 @@ def changed_task(obj):
         print("%s - %s"%(i.github_id,i.asana_id))
     if len(asanaID) > 0:
         paramTask = {'name':obj['title'],
-                     'notes':obj['body'],
-                     'projects':[ASANA_SETTINGS['project']['id']]
-                     }
+                     'notes':obj['body']}
         client.tasks.update(asanaID[0].asana_id,params=paramTask)
         request_logger.info("Task, was changed with parameters %s"%paramTask)
     else:
@@ -45,17 +43,16 @@ def closed_task(obj):
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
     print(asanaID)
     if len(asanaID) > 0 :
-        client.tasks.update(asanaID[0].asana_id, params={'completed': True if obj['state'] == 'close' else False})
+        client.tasks.update(asanaID[0].asana_id, params={'completed': True if obj['state'] == 'closed' else False})
         request_logger.info("Task was closed")
     else:
         request_logger.info("Task not closed")
 
 def added_comment_to_task(obj,comment):
+    """This function checked number issue in github and id task.
+        Next step added new comment from github to asana task"""
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    print(asanaID)
-    for i in asanaID:
-        print("%s - %s"%(i.github_id,i.asana_id))
     if len(asanaID) > 0:
-        client.tasks.add_comment(asanaID[0].asana_id,params={'text':obj['body']})
+        client.tasks.add_comment(asanaID[0].asana_id,params={'text':comment['body']})
     else:
         request_logger.info("Comment, not add to task")
