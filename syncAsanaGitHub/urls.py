@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^github/',views.github,name='github'),
     path('',views.index,name='index'),
     url(r'^asana/$', views.asana, name='asana'),
+    url(r'^asanawebhooks/$', views.asana, name='asanawebhooks'),
 ]
