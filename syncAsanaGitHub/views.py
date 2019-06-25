@@ -67,8 +67,13 @@ def github(request):
                 sync_asana.changed_task(obj.get('issue'))
                 return HttpResponse("OK", status=200)
 
-        if obj.get('action') == 'closed':
-                print('closed')
+        if obj.get('action') == 'deleted':
+                print('deleted')
+                sync_asana.delete_task(obj.get('issue'))
+                return HttpResponse("OK", status=200)
+
+        if obj.get('action') == 'closed' or obj.get('action') == 'reopened':
+                print('Edit status task')
                 sync_asana.closed_task(obj.get('issue'))
                 return HttpResponse("OK", status=200)
 
@@ -102,7 +107,8 @@ def asana_subscribe_webhooks(request):
         return HttpResponse("NOK",status=200)
 
 def index(request):
-    print(dir(IdentityID.objects))
+    print(dir(IdentityID.objects.filter(github_id=33)))
+    IdentityID.objects.filter(github_id=33).delete()
     for i in list(IdentityID.objects.all()):
         print("%s - %s"%(i.github_id,i.asana_id))
     return  HttpResponse('Hello, world. You`are at the sync index')

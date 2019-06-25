@@ -27,9 +27,6 @@ def added_task(obj):
 
 def changed_task(obj):
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    print(asanaID)
-    for i in asanaID:
-        print("%s - %s"%(i.github_id,i.asana_id))
     if len(asanaID) > 0:
         paramTask = {'name':obj['title'],
                      'notes':obj['body']}
@@ -38,15 +35,26 @@ def changed_task(obj):
     else:
         request_logger.info("Task,not changed")
 
+def delete_task(obj):
+    asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
+    if len(asanaID) > 0:
+        client.tasks.delete(asanaID[0].asana_id)
+        IdentityID.objects.filter(github_id=obj['number']).delete()
+        request_logger.info("Task deleted")
+    else:
+        request_logger.info("Task not deleted")
+
+
 
 def closed_task(obj):
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    print(asanaID)
     if len(asanaID) > 0 :
         client.tasks.update(asanaID[0].asana_id, params={'completed': True if obj['state'] == 'closed' else False})
-        request_logger.info("Task was closed")
+        request_logger.info("Task was %s"%obj['state'])
     else:
         request_logger.info("Task not closed")
+
+
 
 def added_comment_to_task(obj,comment):
     """This function checked number issue in github and id task.
