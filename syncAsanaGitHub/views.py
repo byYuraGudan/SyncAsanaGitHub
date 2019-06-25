@@ -78,13 +78,13 @@ def github(request):
 
 @csrf_exempt
 def asana(request):
-    request_logger.info(request.body)
-    if request.method == "POST":
-        body = json2obj(request.body)
-        sync_github.check_request(body.events)
+    # request_logger.info(request.body)
+    # if request.method == "POST":
+    #     body = json2obj(request.body)
+    #     sync_github.check_request(body.events)
     return HttpResponse("OK",status=200)
 
-
+#
 #
 # @csrf_exempt
 # def asana(request):
