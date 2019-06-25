@@ -61,20 +61,26 @@ def github(request):
                 print('opened')
                 sync_asana.added_task(obj.get('issue'))
                 return HttpResponse("OK", status=201)
+
         if obj.get('action') == 'edited':
                 print('edited')
                 sync_asana.changed_task(obj.get('issue'))
                 return HttpResponse("OK", status=200)
+
         if obj.get('action') == 'closed':
                 print('closed')
+                sync_asana.closed_task(obj.get('issue'))
                 return HttpResponse("OK", status=200)
+
         if obj.get('action') == 'created':
                 print('created')
+                sync_asana.added_comment_to_task(obj.get('issue'),obj.get('comment'))
                 return HttpResponse("OK", status=200)
+
     except AttributeError as err:
         request_logger.info("Error - %s"%err)
         return HttpResponse("Error - Bad request",status=500)
-    return HttpResponse("OK",status=200)
+    return HttpResponse("OK", status=200)
 
 @csrf_exempt
 def asana(request):
