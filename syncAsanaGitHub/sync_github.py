@@ -33,11 +33,14 @@ def change_issue(asanaTask):
     currentTask = json2obj(json.dumps(currentTask))
 
 def check_request(events):
-    request_logger.info(events)
-    if len(events) > 0:
-        for event in events:
-            if event.type == "task":
-                task_event(event)
+    try:
+        request_logger.info(events)
+        if len(events) > 0:
+            for event in events:
+                if event.type == "task":
+                    task_event(event)
+    except AttributeError as err:
+        request_logger.info("Error - %s"%err)
 
 
 def task_event(event):
