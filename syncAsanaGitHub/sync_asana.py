@@ -3,7 +3,7 @@ import logging
 import os
 
 from myproject.settings import ASANA_SETTINGS
-from syncAsanaGitHub.models import IdentityID
+from syncAsanaGitHub.models import *
 
 request_logger = logging.getLogger('django.request')
 
@@ -59,5 +59,18 @@ def added_comment_to_task(obj,comment):
     else:
         request_logger.info("Comment, not add to task")
 
-def status_task(obj,status):
-    pass
+def added_status_task(status):
+    parameters = {"name":status['name']}
+    id_status = client.sections.create_in_project(ASANA_SETTINGS['project']['id'], params=parameters)
+    StatusTask.objects.create(asana_status_id=id_status.get('id'),github_status_id=status['id'])
+
+def changed_status_task(status):
+    parameters = {"name":status['name']}
+    asana_id = list(StatusTask.objects.filter(github_status_id=status['id']))
+    if len(asana_id) > 0:
+        client.sections.update(asana_id[0].asana_status_id, params=parameters)
+        request_logger.info("Label update (%s)"%asana_id)
+    else:
+        request_logger.info("Label not update")
+
+

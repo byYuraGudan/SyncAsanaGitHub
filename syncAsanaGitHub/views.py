@@ -62,14 +62,19 @@ def github(request):
                 return HttpResponse("OK", status=201)
 
         if obj.get('action') == 'edited':
-                print('edited')
-                sync_asana.changed_task(obj.get('issue'))
-                return HttpResponse("OK", status=200)
+            if obj.get('comment'):
+                    print('edited comment')
+                    sync_asana.changed_task(obj.get('issue'))
+                    return HttpResponse("OK", status=200)
+            if obj.get('label'):
+                    print('edited label')
+                    sync_asana.changed_status_task(obj.get('label'))
+                    return HttpResponse("OK", status=200)
 
         if obj.get('action') == 'deleted':
                 print('deleted')
                 sync_asana.delete_task(obj.get('issue'))
-                return HttpResponse("OK", status=200)
+                return HttpResponse("OK", status=204)
 
         if obj.get('action') == 'closed' or obj.get('action') == 'reopened':
                 print('Edit status task')
@@ -77,9 +82,15 @@ def github(request):
                 return HttpResponse("OK", status=200)
 
         if obj.get('action') == 'created':
-                print('created')
-                sync_asana.added_comment_to_task(obj.get('issue'),obj.get('comment'))
-                return HttpResponse("OK", status=200)
+                if obj.get('comment'):
+                    print('created comment')
+                    sync_asana.added_comment_to_task(obj.get('issue'),obj.get('comment'))
+                    return HttpResponse("OK", status=201)
+                if obj.get('label'):
+                    print('created label')
+                    sync_asana.added_status_task(obj.get('label'))
+                    return HttpResponse("OK", status=201)
+
 
     except AttributeError as err:
         request_logger.info("Error - %s"%err)
