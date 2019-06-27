@@ -92,7 +92,7 @@ def github(request):
                     return HttpResponse("OK", status=201)
 
         if obj.get('action') == 'labeled':
-                if obj.get('labels'):
+                if obj.get('label'):
                     print('Change status task')
                     sync_asana.change_status_of_task(obj.get('issue'),obj.get('label'))
                     return  HttpResponse("OK",status=200)
