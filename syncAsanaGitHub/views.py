@@ -58,7 +58,7 @@ def github(request):
     try:
         if obj.get('action') == 'opened':
                 print('opened')
-                sync_asana.added_task(obj.get('issue'),obj.get('assignee'))
+                sync_asana.added_task(obj.get('issue'),obj.get('issue').get('assignee'))
                 return HttpResponse("OK", status=201)
 
         if obj.get('action') == 'edited':
