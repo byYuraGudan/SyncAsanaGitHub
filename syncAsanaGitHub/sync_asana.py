@@ -98,17 +98,17 @@ def changed_status(status):
     else:
         request_logger.info("Label not update")
 
-def change_status_of_task(obj,label):
+def change_status_of_task(obj, labels):
     print(obj)
-    print(label)
+    print(labels)
     asana_id = list(IdentityID.objects.filter(github_id=obj.get('number')))
-    statusID = list(StatusTask.objects.filter(github_status_id=label.get('id')))
+    statusID = list(StatusTask.objects.filter(github_status_id=labels[0].get('id') if len(labels) > 0 else -1))
     if len(asana_id) > 0 and len(statusID) > 0:
         params = {'project': ASANA_SETTINGS['project']['id'], 'section': statusID[0].asana_status_id}
         client.tasks.add_project(asana_id[0].asana_id, params=params)
         request_logger.info('Modified status(%s) of task(%s)'%(statusID[0].asana_status_id,asana_id[0].asana_id))
     else:
-        request_logger("Not modified status task")
+        request_logger.info("Not modified status task")
 
 
 

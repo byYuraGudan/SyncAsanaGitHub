@@ -91,10 +91,10 @@ def github(request):
                     sync_asana.added_status(obj.get('label'))
                     return HttpResponse("OK", status=201)
 
-        if obj.get('action') == 'labeled':
-                if obj.get('label'):
+        if obj.get('action') == 'labeled' or obj.get('action') == 'unlabeled':
+                if obj.get('issue').get('labels'):
                     print('Change status task')
-                    sync_asana.change_status_of_task(obj.get('issue'),obj.get('label'))
+                    sync_asana.change_status_of_task(obj.get('issue'),obj.get('issue').get('labels'))
                     return  HttpResponse("OK",status=200)
         if obj.get('action') == 'assigned':
                 if obj.get('assignee'):
