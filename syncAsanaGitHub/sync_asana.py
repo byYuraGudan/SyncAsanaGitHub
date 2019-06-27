@@ -10,21 +10,28 @@ request_logger = logging.getLogger('django.request')
 if 'ASANA_ACCESS_TOKEN' in os.environ:
     client = asana.Client.access_token(os.environ['ASANA_ACCESS_TOKEN'])
 
-def added_task(obj):
+def added_task(obj,user):
     """This function create new task in asana"""
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=obj['id']))
     paramTask = {'name':obj['title'],
                  'notes':obj['body'],
-                 'projects':[ASANA_SETTINGS['project']['id']]}
+                 'projects':[ASANA_SETTINGS['project']['id']],
+                 'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 and obj[
+                     'assignee'] != None else None}
     taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
     IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
 
-def changed_task(obj):
+def changed_task(obj,user):
     """This function checked number issue in github and id task.
         Next step post changed github issue to asana task"""
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=obj['id']))
     if len(asanaID) > 0:
         paramTask = {'name':obj['title'],
-                     'notes':obj['body']}
+                     'notes':obj['body'],
+                     'assignee': asana_user_id[0].asana_user_id if len(asana_user_id) > 0 and obj[
+                         'assignee'] != None else None
+                     }
         client.tasks.update(asanaID[0].asana_id,params=paramTask)
         request_logger.info("Task, was changed with parameters %s"%paramTask)
     else:

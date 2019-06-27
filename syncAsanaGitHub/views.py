@@ -58,13 +58,13 @@ def github(request):
     try:
         if obj.get('action') == 'opened':
                 print('opened')
-                sync_asana.added_task(obj.get('issue'))
+                sync_asana.added_task(obj.get('issue',obj.get('sender')))
                 return HttpResponse("OK", status=201)
 
         if obj.get('action') == 'edited':
             if obj.get('comment'):
                     print('edited comment')
-                    sync_asana.changed_task(obj.get('issue'))
+                    sync_asana.changed_task(obj.get('issue'),obj.get('sender'))
                     return HttpResponse("OK", status=200)
             if obj.get('label'):
                     print('edited label')
