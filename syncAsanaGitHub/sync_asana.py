@@ -12,7 +12,7 @@ if 'ASANA_ACCESS_TOKEN' in os.environ:
 
 def added_task(obj,user):
     """This function create new task in asana"""
-    asana_user_id = list(SyncUsers.objects.filter(github_user_id=obj['id']))
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=user['id']))
     paramTask = {'name':obj['title'],
                  'notes':obj['body'],
                  'projects':[ASANA_SETTINGS['project']['id']],
@@ -25,7 +25,7 @@ def changed_task(obj,user):
     """This function checked number issue in github and id task.
         Next step post changed github issue to asana task"""
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    asana_user_id = list(SyncUsers.objects.filter(github_user_id=obj['id']))
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=user['id']))
     if len(asanaID) > 0:
         paramTask = {'name':obj['title'],
                      'notes':obj['body'],
