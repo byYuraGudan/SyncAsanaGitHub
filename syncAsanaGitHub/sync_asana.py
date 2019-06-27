@@ -103,7 +103,7 @@ def change_status_of_task(obj,label):
     print(label)
     asana_id = list(IdentityID.objects.filter(github_id=obj.get('number')))
     statusID = list(StatusTask.objects.filter(github_status_id=label.get('id')))
-    if len(asana_id) > 0 and statusID >0:
+    if len(asana_id) > 0 and len(statusID) > 0:
         params = {'project': ASANA_SETTINGS['project']['id'], 'section': statusID[0].asana_status_id}
         client.tasks.add_project(asana_id[0].asana_id, params=params)
         request_logger.info('Modified status(%s) of task(%s)'%(statusID[0].asana_status_id,asana_id[0].asana_id))
