@@ -36,7 +36,6 @@ def assigned_task(obj, assignees):
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
     asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignees[0]['id'] if len(assignees) > 0 else -1))
     if len(asanaID) > 0:
-        request_logger.info("%s - %s" % (asana_user_id[0].asana_user_id, assignees['id']))
         paramTask = {'assignee': asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
         client.tasks.update(asanaID[0].asana_id,params=paramTask)
         request_logger.info("Assigned %s"%paramTask)
