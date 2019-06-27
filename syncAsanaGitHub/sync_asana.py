@@ -12,7 +12,8 @@ if 'ASANA_ACCESS_TOKEN' in os.environ:
 
 def added_task(obj,assignee):
     """This function create new task in asana"""
-    asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignee.get('id') if assignee.get('id') else -1))
+    print(assignee)
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignee.get('id') if assignee != None else -1))
     request_logger.info("%s - %s"%(asana_user_id[0].asana_user_id,assignee['id']))
     paramTask = {'name':obj['title'],
                  'notes':obj['body'],
