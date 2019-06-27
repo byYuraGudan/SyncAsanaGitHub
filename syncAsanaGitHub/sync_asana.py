@@ -10,9 +10,10 @@ request_logger = logging.getLogger('django.request')
 if 'ASANA_ACCESS_TOKEN' in os.environ:
     client = asana.Client.access_token(os.environ['ASANA_ACCESS_TOKEN'])
 
-def added_task(obj,user):
+def added_task(obj,assignee):
     """This function create new task in asana"""
-    asana_user_id = list(SyncUsers.objects.filter(github_user_id=user['id']))
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignee['id']))
+    request_logger.info("%s - %s"%(asana_user_id[0].asana_user_id,assignee['id']))
     paramTask = {'name':obj['title'],
                  'notes':obj['body'],
                  'projects':[ASANA_SETTINGS['project']['id']],
@@ -42,6 +43,16 @@ def assigned_task(obj,assigne):
         request_logger.info("Assigned %s"%paramTask)
     else:
         request_logger.info("Not Assigned")
+
+def unassigned_task(obj):
+    asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
+    if len(asanaID) > 0:
+        paramTask = {'assignee': None}
+        client.tasks.update(asanaID[0].asana_id,params=paramTask)
+        request_logger.info("Unassigned %s"%paramTask)
+    else:
+        request_logger.info("Not unassigned")
+
 
 def delete_task(obj):
     """This function delete task"""

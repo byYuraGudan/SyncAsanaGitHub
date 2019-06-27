@@ -100,6 +100,11 @@ def github(request):
                     print('assigned')
                 sync_asana.assigned_task(obj.get('issue'),obj.get('assignee'))
                 return HttpResponse("OK", status=200)
+        if obj.get('action') == 'usassigned':
+                if obj.get('assignee'):
+                    print('assigned')
+                sync_asana.unassigned_task(obj.get('issue'))
+                return HttpResponse("OK", status=200)
 
 
 
