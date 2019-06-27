@@ -10,7 +10,7 @@ from django.utils.encoding import force_bytes
 
 import json
 from syncAsanaGitHub import sync_asana,sync_github
-from syncAsanaGitHub.models import IdentityID
+from syncAsanaGitHub.models import *
 import requests
 from ipaddress import ip_address, ip_network
 
@@ -54,6 +54,7 @@ def github(request):
 
     request_logger.info(request.body)
     obj = json.loads(request.body)
+
     try:
         if obj.get('action') == 'opened':
                 print('opened')
@@ -105,8 +106,15 @@ def asana_subscribe_webhooks(request):
         return HttpResponse("NOK",status=200)
 
 def index(request):
-    print(dir(IdentityID.objects.filter(github_id=33)))
-    IdentityID.objects.filter(github_id=33).delete()
+    print("List IdentityTaskId")
     for i in list(IdentityID.objects.all()):
         print("%s - %s"%(i.github_id,i.asana_id))
+    print("List UserTask")
+    for i in list(SyncUsers.objects.all()):
+        print("%s(%s) - %s(%s)"%(i.github_user_name,i.github_user_id,i.asana_user_name,i.asana_user_id))
+    print("List StatusTaskID")
+    for i in list(StatusTask.objects.all()):
+        print("%s - %s"%(i.github_status_id,i.asana_status_id))
+    # SyncUsers.objects.create(github_user_name="byYuraGudan",github_user_id="34908227",asana_user_name="Yurii Hudan",asana_user_id="1126657026625460")
+    # SyncUsers.objects.create(github_user_name="bockardo",github_user_id="11328675",asana_user_name="bockardo",asana_user_id="1128736727323219")
     return  HttpResponse('Hello, world. You`are at the sync index')

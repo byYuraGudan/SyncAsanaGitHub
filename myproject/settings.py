@@ -151,5 +151,16 @@ ASANA_SETTINGS = {"workspace": {
                   'project':{
                                 "id": 1127318215881835,
                                 "gid": "1127318215881835",
-                                "resource_type": "project"}
-                  }
+                                "resource_type": "project"},
+                  'users':[{
+                            "id_asana": 1128736727323219,
+                            "name_asana": "bockardo",
+                            "id_github": 11328675,
+                            "name_github": "bockardo"},
+                           {
+                            "id_asana": 1126657026625460,
+                            "name_asana": "Yurii Hudan",
+                            "id_github": 34908227,
+                            "name_github": "byYuraGudan"},
+                  ]}
+

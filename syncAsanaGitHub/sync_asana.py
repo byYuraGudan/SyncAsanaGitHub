@@ -43,7 +43,7 @@ def delete_task(obj):
 def closed_task(obj):
     """This function closed and reopen task"""
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    if len(asanaID) > 0 :
+    if len(asanaID) > 0:
         client.tasks.update(asanaID[0].asana_id, params={'completed': True if obj['state'] == 'closed' else False})
         request_logger.info("Task was %s"%obj['state'])
     else:
@@ -55,5 +55,9 @@ def added_comment_to_task(obj,comment):
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
     if len(asanaID) > 0:
         client.tasks.add_comment(asanaID[0].asana_id,params={'text':comment['body']})
+        request_logger.info("Comment, add to task (%s)"%asanaID[0].asana_id)
     else:
         request_logger.info("Comment, not add to task")
+
+def status_task(obj,status):
+    pass
