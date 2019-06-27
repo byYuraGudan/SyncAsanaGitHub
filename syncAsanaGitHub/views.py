@@ -94,19 +94,18 @@ def github(request):
         if obj.get('action') == 'labeled':
                 if obj.get('labels'):
                     print('Change status task')
+                    sync_asana.change_status_of_task(obj.get('issue'),obj.get('label'))
                     return  HttpResponse("OK",status=200)
         if obj.get('action') == 'assigned':
                 if obj.get('assignee'):
                     print('assigned')
                 sync_asana.assigned_task(obj.get('issue'),obj.get('assignee'))
                 return HttpResponse("OK", status=200)
-        if obj.get('action') == 'usassigned':
+        if obj.get('action') == 'unassigned':
                 if obj.get('assignee'):
                     print('assigned')
                 sync_asana.unassigned_task(obj.get('issue'))
                 return HttpResponse("OK", status=200)
-
-
 
     except AttributeError as err:
         request_logger.info("Error - %s"%err)

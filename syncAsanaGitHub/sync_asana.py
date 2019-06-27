@@ -12,7 +12,6 @@ if 'ASANA_ACCESS_TOKEN' in os.environ:
 
 def added_task(obj,assignee):
     """This function create new task in asana"""
-    print(assignee)
     asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignee.get('id') if assignee != None else -1))
     paramTask = {'name':obj['title'],
                  'notes':obj['body'],
@@ -36,8 +35,8 @@ def changed_task(obj):
 def assigned_task(obj,assigne):
     asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
     asana_user_id = list(SyncUsers.objects.filter(github_user_id=assigne['id']))
-    request_logger.info("%s - %s"%(asana_user_id[0].asana_user_id,assigne['id']))
     if len(asanaID) > 0:
+        request_logger.info("%s - %s" % (asana_user_id[0].asana_user_id, assigne['id']))
         paramTask = {'assignee': asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
         client.tasks.update(asanaID[0].asana_id,params=paramTask)
         request_logger.info("Assigned %s"%paramTask)
@@ -91,15 +90,26 @@ def added_status(status):
 
 def changed_status(status):
     """This function changed status(section) in asana"""
-    parameters = {"name":status['name']}
     asana_id = list(StatusTask.objects.filter(github_status_id=status['id']))
     if len(asana_id) > 0:
+        parameters = {"name": status['name']}
         client.sections.update(asana_id[0].asana_status_id, params=parameters)
         request_logger.info("Label update (%s)"%asana_id)
     else:
         request_logger.info("Label not update")
 
-def change_status_of_task():
-    pass
+def change_status_of_task(obj,label):
+    print(obj)
+    print(label)
+    asana_id = list(IdentityID.objects.filter(github_id=obj.get('number')))
+    statusID = list(StatusTask.objects.filter(github_status_id=label.get('id')))
+    if len(asana_id) > 0 and statusID >0:
+        params = {'project': ASANA_SETTINGS['project']['id'], 'section': statusID[0].asana_status_id}
+        client.tasks.add_project(asana_id[0].asana_id, params=params)
+        request_logger.info('Modified status(%s) of task(%s)'%(statusID[0].asana_status_id,asana_id[0].asana_id))
+    else:
+        request_logger("Not modified status task")
+
+
 
 
