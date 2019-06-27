@@ -96,16 +96,12 @@ def github(request):
                     print('Change status task')
                     sync_asana.change_status_of_task(obj.get('issue'),obj.get('issue').get('labels'))
                     return  HttpResponse("OK",status=200)
-        if obj.get('action') == 'assigned':
+        if obj.get('action') == 'assigned' or obj.get('action') == 'unassigned':
                 if obj.get('issue').get('assignees'):
                     print('assigned')
                 sync_asana.assigned_task(obj.get('issue'),obj.get('issue').get('assignees'))
                 return HttpResponse("OK", status=200)
-        if obj.get('action') == 'unassigned':
-                if obj.get('assignee'):
-                    print('assigned')
-                sync_asana.unassigned_task(obj.get('issue'))
-                return HttpResponse("OK", status=200)
+
 
     except AttributeError as err:
         request_logger.info("Error - %s"%err)

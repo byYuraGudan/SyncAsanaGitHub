@@ -42,14 +42,6 @@ def assigned_task(obj, assignees):
     else:
         request_logger.info("Not Assigned")
 
-def unassigned_task(obj):
-    asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    if len(asanaID) > 0:
-        paramTask = {'assignee': None}
-        client.tasks.update(asanaID[0].asana_id,params=paramTask)
-        request_logger.info("Unassigned %s"%paramTask)
-    else:
-        request_logger.info("Not unassigned")
 
 
 def delete_task(obj):
