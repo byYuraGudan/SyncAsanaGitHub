@@ -68,7 +68,7 @@ def github(request):
                     return HttpResponse("OK", status=200)
             if obj.get('label'):
                     print('edited label')
-                    sync_asana.changed_status_task(obj.get('label'))
+                    sync_asana.changed_status(obj.get('label'))
                     return HttpResponse("OK", status=200)
 
         if obj.get('action') == 'deleted':
@@ -88,8 +88,12 @@ def github(request):
                     return HttpResponse("OK", status=201)
                 if obj.get('label'):
                     print('created label')
-                    sync_asana.added_status_task(obj.get('label'))
+                    sync_asana.added_status(obj.get('label'))
                     return HttpResponse("OK", status=201)
+        if obj.get('action') == 'labeled':
+                if obj.get('labels'):
+                    print('Change status task')
+                    return  HttpResponse("OK",status=200)
 
 
     except AttributeError as err:
@@ -99,7 +103,7 @@ def github(request):
 
 @csrf_exempt
 def asana(request):
-    # request_logger.info(request.body)
+    request_logger.info(request.body)
     # if request.method == "POST":
     #     body = json2obj(request.body)
     #     sync_github.check_request(body.events)

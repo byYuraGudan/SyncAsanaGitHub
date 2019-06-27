@@ -59,12 +59,14 @@ def added_comment_to_task(obj,comment):
     else:
         request_logger.info("Comment, not add to task")
 
-def added_status_task(status):
+def added_status(status):
+    """This function added status(section) in asana"""
     parameters = {"name":status['name']}
     id_status = client.sections.create_in_project(ASANA_SETTINGS['project']['id'], params=parameters)
     StatusTask.objects.create(asana_status_id=id_status.get('id'),github_status_id=status['id'])
 
-def changed_status_task(status):
+def changed_status(status):
+    """This function changed status(section) in asana"""
     parameters = {"name":status['name']}
     asana_id = list(StatusTask.objects.filter(github_status_id=status['id']))
     if len(asana_id) > 0:
@@ -72,5 +74,8 @@ def changed_status_task(status):
         request_logger.info("Label update (%s)"%asana_id)
     else:
         request_logger.info("Label not update")
+
+def change_status_of_task():
+    pass
 
 
