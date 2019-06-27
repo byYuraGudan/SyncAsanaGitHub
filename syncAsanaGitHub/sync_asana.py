@@ -19,6 +19,7 @@ def added_task(obj,assignee):
                  'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
     taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
     IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
+    change_status_of_task(obj,obj.get('labels'))
 
 def changed_task(obj):
     """This function checked number issue in github and id task.
@@ -90,8 +91,6 @@ def changed_status(status):
         request_logger.info("Label not update")
 
 def change_status_of_task(obj, labels):
-    print(obj)
-    print(labels)
     asana_id = list(IdentityID.objects.filter(github_id=obj.get('number')))
     statusID = list(StatusTask.objects.filter(github_status_id=labels[0].get('id') if len(labels) > 0 else -1))
     if len(asana_id) > 0 and len(statusID) > 0:
