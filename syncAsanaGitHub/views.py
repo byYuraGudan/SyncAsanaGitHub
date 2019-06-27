@@ -97,9 +97,9 @@ def github(request):
                     sync_asana.change_status_of_task(obj.get('issue'),obj.get('issue').get('labels'))
                     return  HttpResponse("OK",status=200)
         if obj.get('action') == 'assigned':
-                if obj.get('assignee'):
+                if obj.get('issue').get('assignees'):
                     print('assigned')
-                sync_asana.assigned_task(obj.get('issue'),obj.get('assignee'))
+                sync_asana.assigned_task(obj.get('issue'),obj.get('issue').get('assignees'))
                 return HttpResponse("OK", status=200)
         if obj.get('action') == 'unassigned':
                 if obj.get('assignee'):
