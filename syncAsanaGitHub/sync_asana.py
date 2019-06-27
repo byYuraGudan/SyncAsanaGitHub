@@ -12,12 +12,11 @@ if 'ASANA_ACCESS_TOKEN' in os.environ:
 
 def added_task(obj,user):
     """This function create new task in asana"""
-    # asana_user_id = list(SyncUsers.objects.filter(github_user_id=user['id']))
+    asana_user_id = list(SyncUsers.objects.filter(github_user_id=user['id']))
     paramTask = {'name':obj['title'],
                  'notes':obj['body'],
-                 'projects':[ASANA_SETTINGS['project']['id']]}
-                 # 'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 and obj[
-                     # 'assignee'] != None else None}
+                 'projects':[ASANA_SETTINGS['project']['id']],
+                 'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
     taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
     IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
 
