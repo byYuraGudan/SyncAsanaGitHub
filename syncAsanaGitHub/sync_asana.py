@@ -19,7 +19,7 @@ def added_task(obj,assignee):
                  'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
     taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
     IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
-    change_status_of_task(obj,obj.get('labels'))
+    changed_status_of_task(obj, obj.get('labels'))
 
 def changed_task(obj):
     """This function checked number issue in github and id task.
@@ -90,9 +90,9 @@ def changed_status(status):
     else:
         request_logger.info("Label not update")
 
-def change_status_of_task(obj, labels):
+def changed_status_of_task(obj, status):
     asana_id = list(IdentityID.objects.filter(github_id=obj.get('number')))
-    statusID = list(StatusTask.objects.filter(github_status_id=labels[0].get('id') if len(labels) > 0 else -1))
+    statusID = list(StatusTask.objects.filter(github_status_id=status[0].get('id') if len(status) > 0 else -1))
     if len(asana_id) > 0 and len(statusID) > 0:
         params = {'project': ASANA_SETTINGS['project']['id'], 'section': statusID[0].asana_status_id}
         client.tasks.add_project(asana_id[0].asana_id, params=params)
@@ -100,6 +100,10 @@ def change_status_of_task(obj, labels):
     else:
         request_logger.info("Not modified status task")
 
-
-
-
+def deleted_status(status):
+    asana_id = list(StatusTask.objects.filter(github_status_id=status['id']))
+    if len(asana_id) > 0:
+        client.sections.delete(asana_id[0].asana_status_id)
+        request_logger.info("Label deleted (%s)"%asana_id)
+    else:
+        request_logger.info("Label not deleted")

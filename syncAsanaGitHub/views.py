@@ -72,9 +72,14 @@ def github(request):
                     return HttpResponse("OK", status=200)
 
         if obj.get('action') == 'deleted':
-                print('deleted')
-                sync_asana.delete_task(obj.get('issue'))
-                return HttpResponse("OK", status=204)
+                if obj.get('issue'):
+                    print('deleted issue')
+                    sync_asana.delete_task(obj.get('issue'))
+                    return HttpResponse("OK", status=204)
+                if obj.get('label'):
+                    print('deleted issue')
+                    sync_asana.deleted_status(obj.get('label'))
+                    return HttpResponse("OK", status=204)
 
         if obj.get('action') == 'closed' or obj.get('action') == 'reopened':
                 print('Edit status task')
@@ -94,7 +99,7 @@ def github(request):
         if obj.get('action') == 'labeled' or obj.get('action') == 'unlabeled':
                 if obj.get('issue').get('labels'):
                     print('Change status task')
-                    sync_asana.change_status_of_task(obj.get('issue'),obj.get('issue').get('labels'))
+                    sync_asana.changed_status_of_task(obj.get('issue'), obj.get('issue').get('labels'))
                     return  HttpResponse("OK",status=200)
         if obj.get('action') == 'assigned' or obj.get('action') == 'unassigned':
                 if obj.get('issue').get('assignees'):
