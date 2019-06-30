@@ -51,7 +51,6 @@ def create_task(event):
             assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
             new_issue = repoGit.create_issue(title=task.get('name'),
                                              body=task.get('notes'),
-                                             state='closed' if task.get('completed') else 'opened',
                                              assignees=[assignee[0].github_user_name if len(assignee) > 0 else ''],
                                              labels=[task.get('memberships')[0].get('section').get('name')])
             IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
