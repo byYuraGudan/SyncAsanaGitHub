@@ -84,6 +84,7 @@ def delete_task(event):
 
 
 
+
 def task_event(event):
     if event.action == 'added':
         create_task(event)
