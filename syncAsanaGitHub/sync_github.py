@@ -53,6 +53,7 @@ def create_task(event):
             return HttpResponse("Create issue",status=201)
     except Exception as e:
         request_logger.info(e)
+        return HttpResponse("Bad request",status=500)
 
 
 def change_task(event):
