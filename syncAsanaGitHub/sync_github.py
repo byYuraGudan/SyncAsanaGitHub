@@ -42,14 +42,17 @@ def checking_request(events):
     return HttpResponse("OK")
 
 def create_task(event):
-    if len(list(IdentityID.objects.filter(asana_id=event.get('resource')))) > 0:
-        request_logger.info("This task existed")
-        return HttpResponse("OK",status=200)
-    else:
-        task = asanaClient.tasks.find_by_id(event.get('resource'))
-        new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
-        IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
-        return HttpResponse("Create issue",status=201)
+    try:
+        if len(list(IdentityID.objects.filter(asana_id=event.get('resource')))) > 0:
+            request_logger.info("This task existed")
+            return HttpResponse("OK",status=200)
+        else:
+            task = asanaClient.tasks.find_by_id(event.get('resource'))
+            new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
+            IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
+            return HttpResponse("Create issue",status=201)
+    except Exception as e:
+        request_logger.info(e)
 
 
 def change_task(event):
@@ -58,6 +61,7 @@ def change_task(event):
     if len(github_task_number) > 0:
         request_logger.info("Change issue")
         issue = repoGit.get_issue(int(github_task_number[0].github_id))
+        print(issue)
         asana_user_id = task.get('assignee').get('id') if task_event.get('assignee') != None else -1
         assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
         issue.edit(title=task.get('name'),
