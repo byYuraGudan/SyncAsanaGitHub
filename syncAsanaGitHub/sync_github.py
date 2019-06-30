@@ -4,7 +4,7 @@ import logging
 
 from github import Github
 from django.http import HttpResponse
-from syncAsanaGitHub.models import  IdentityID
+from syncAsanaGitHub.models import  IdentityID,StatusTask,SyncUsers
 from myproject.settings import ASANA_SETTINGS
 
 
@@ -27,7 +27,6 @@ def create_issue(event):
         return HttpResponse("OK",status=200)
     else:
         task = asanaClient.tasks.find_by_id(event.get('resource'))
-        print("%s"%(task))
         new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
         IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
         request_logger.info(task)
@@ -37,17 +36,23 @@ def create_issue(event):
 
 def change_issue(event):
     task = asanaClient.tasks.find_by_id(event.get('resource'))
-    print("%s"%(task))
     github_task_number = list(IdentityID.objects.filter(asana_id = task.get('id')))
     if len(github_task_number) > 0:
-        print(github_task_number[0].github_id)
+        request_logger.info("Change issue")
         issue = repoGit.get_issue(int(github_task_number[0].github_id))
+        asana_user_id = task.get('assignee').get('id') if task_event.get('assignee') != None else -1
+        assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
         issue.edit(title=task.get('name'),
                    body=task.get('notes'),
-                   state= 'closed' if task.get('completed') else 'opened',)
-                   # assignees=,
-                   # labels=)
-        return HttpResponse("Issue chanched",status=200)
+                   state= 'closed' if task.get('completed') else 'opened',
+                   assignee=assignee.github_user_name if len(assignee) > 0 else '',
+                   labels=[task.get('memberships')[0].get('section').get('name')])
+        return HttpResponse("Issue changed",status=200)
+    else:
+        request_logger.info("Issue not changed")
+        return HttpResponse("Issue changed", status=304)
+
+
 
 
 
