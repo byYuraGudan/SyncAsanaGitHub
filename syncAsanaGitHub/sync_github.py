@@ -30,12 +30,11 @@ def checking_request(events):
                 if event.get('type') == 'task':
                     if event.get('action') == 'added':
                         request_logger.info('create task')
-                        return create_task(event)
+                        create_task(event)
                     if event.get('action') == 'changed':
-                        return change_task(event)
+                        change_task(event)
                     if event.get('action') == 'deleted':
-                        return delete_task(event)
-
+                        delete_task(event)
     except AttributeError as err:
         request_logger.info("Error - %s"%err)
         return HttpResponse("Error", status=500)
@@ -45,16 +44,12 @@ def create_task(event):
     try:
         if len(list(IdentityID.objects.filter(asana_id=event.get('resource')))) > 0:
             request_logger.info("This task existed")
-            return HttpResponse("OK",status=200)
         else:
             task = asanaClient.tasks.find_by_id(event.get('resource'))
             new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
             IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
-            return HttpResponse("Create issue",status=201)
     except Exception as e:
         request_logger.info(e)
-        return HttpResponse("Bad request",status=500)
-
 
 def change_task(event):
     task = asanaClient.tasks.find_by_id(event.get('resource'))
@@ -70,27 +65,13 @@ def change_task(event):
                    state= 'closed' if task.get('completed') else 'opened',
                    assignee=assignee.github_user_name if len(assignee) > 0 else '',
                    labels=[task.get('memberships')[0].get('section').get('name')])
-        return HttpResponse("Issue changed",status=200)
     else:
         request_logger.info("Issue not changed")
-        return HttpResponse("Issue changed", status=304)
 
 def delete_task(event):
     request_logger.info('Delete task')
     IdentityID.objects.filter(github_id=event.get('resource')).delete()
-    return HttpResponse('Delete task',status=204)
 
 
 
-
-
-
-def task_event(event):
-    if event.action == 'added':
-        create_task(event)
-    if event.action == 'changed':
-        pass
-
-def comment_event(event):
-    pass
 
