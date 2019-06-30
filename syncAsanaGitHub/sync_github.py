@@ -82,13 +82,16 @@ def delete_task(event):
 
 
 def add_comment(story):
-    request_logger.info('Add comment')
-    story = asanaClient.stories.find_by_id(story.get('resource'))
-    print(story)
-    if story.get('type') == 'comment':
-        github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
-        if len(github_task_number) > 0:
-            issue = repoGit.get_issue(int(github_task_number[0].github_id))
-            issue.create_comment(story.get('text'))
+    try:
+        request_logger.info('Add comment')
+        story = asanaClient.stories.find_by_id(story.get('resource'))
+        print(story)
+        if story.get('type') == 'comment':
+            github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
+            if len(github_task_number) > 0:
+                issue = repoGit.get_issue(int(github_task_number[0].github_id))
+                issue.create_comment(story.get('text'))
+    except asana.error.NotFoundError as err:
+        request_logger.info('Error - %s'%err)
 
 
