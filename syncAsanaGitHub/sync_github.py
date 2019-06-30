@@ -55,7 +55,8 @@ def change_task(event):
     if len(github_task_number) > 0:
         request_logger.info("Change issue")
         issue = repoGit.get_issue(int(github_task_number[0].github_id))
-        asana_user_id = task.get('assignee').get('id') if event.get('assignee') != None else -1
+        asana_user_id = task.get('assignee').get('id') if task.get('assignee') != None else -1
+        print(asana_user_id)
         assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
         print("List assignee issue")
         for i in assignee:
@@ -63,7 +64,7 @@ def change_task(event):
         issue.edit(title=task.get('name'),
                    body=task.get('notes'),
                    state= 'closed' if task.get('completed') else 'opened',
-                   assignees = [assignee.github_user_name if len(assignee) > 0 else ''],
+                   assignees = [assignee[0].github_user_name if len(assignee) > 0 else ''],
                    labels=[task.get('memberships')[0].get('section').get('name')])
     else:
         request_logger.info("Issue not changed")
@@ -73,5 +74,7 @@ def delete_task(event):
     IdentityID.objects.filter(github_id=event.get('resource')).delete()
 
 
+def add_comment(comment):
+    pass
 
 
