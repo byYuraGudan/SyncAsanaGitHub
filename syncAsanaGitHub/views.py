@@ -65,7 +65,8 @@ def github_webhooks(request):
 def asana_webhooks(request):
     request_logger.info(request.body)
     events = json.loads(request.body)
-    sync_github.checking_request(events.get('events'))
+    if events.get('events'):
+        sync_github.checking_request(events.get('events'))
     res = HttpResponse("OK", status=200)
     res['X-Hook-Secret'] = request.headers.get('X-Hook-Secret')
     return res

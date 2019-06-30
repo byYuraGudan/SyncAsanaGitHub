@@ -56,7 +56,7 @@ def change_task(event):
         request_logger.info("Change issue")
         issue = repoGit.get_issue(int(github_task_number[0].github_id))
         print(issue)
-        asana_user_id = task.get('assignee').get('id') if task_event.get('assignee') != None else -1
+        asana_user_id = task.get('assignee').get('id') if event.get('assignee') != None else -1
         assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
         issue.edit(title=task.get('name'),
                    body=task.get('notes'),
