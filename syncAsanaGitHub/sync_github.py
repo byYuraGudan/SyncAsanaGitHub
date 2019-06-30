@@ -37,8 +37,6 @@ def checking_request(events):
                         delete_task(event)
     except AttributeError as err:
         request_logger.info("Error - %s"%err)
-        return HttpResponse("Error", status=500)
-    return HttpResponse("OK")
 
 def create_task(event):
     try:
