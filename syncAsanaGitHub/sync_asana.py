@@ -73,14 +73,17 @@ def checking_request(obj):
 
 def added_task(obj,assignee):
     """This function create new task in asana"""
-    asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignee.get('id') if assignee != None else -1))
-    paramTask = {'name':obj['title'],
-                 'notes':obj['body'],
-                 'projects':[ASANA_SETTINGS['project']['id']],
-                 'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
-    taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
-    IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
-    changed_status_of_task(obj, obj.get('labels'))
+    if len(list(IdentityID.objects.filter(github_id=obj.get('number')))) > 0:
+        request_logger.info("This task existed")
+    else:
+        asana_user_id = list(SyncUsers.objects.filter(github_user_id=assignee.get('id') if assignee != None else -1))
+        paramTask = {'name':obj['title'],
+                     'notes':obj['body'],
+                     'projects':[ASANA_SETTINGS['project']['id']],
+                     'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
+        taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
+        IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
+        changed_status_of_task(obj, obj.get('labels'))
 
 def changed_task(obj):
     """This function checked number issue in github and id task.

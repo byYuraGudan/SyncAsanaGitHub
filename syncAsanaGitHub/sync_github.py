@@ -43,13 +43,12 @@ def checking_request(events):
 
 def create_task(event):
     if len(list(IdentityID.objects.filter(asana_id=event.get('resource')))) > 0:
+        request_logger.info("This task existed")
         return HttpResponse("OK",status=200)
     else:
         task = asanaClient.tasks.find_by_id(event.get('resource'))
         new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
         IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
-        request_logger.info(task)
-        request_logger.info(new_issue)
         return HttpResponse("Create issue",status=201)
 
 
