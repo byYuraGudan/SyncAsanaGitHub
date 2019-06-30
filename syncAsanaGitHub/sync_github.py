@@ -64,7 +64,6 @@ def change_task(event):
                    body=task.get('notes'),
                    state= 'closed' if task.get('completed') else 'opened',
                    assignees = [assignee.github_user_name if len(assignee) > 0 else ''],
-                   assignee = assignee.github_user_name if len(assignee) > 0 else '',
                    labels=[task.get('memberships')[0].get('section').get('name')])
     else:
         request_logger.info("Issue not changed")
