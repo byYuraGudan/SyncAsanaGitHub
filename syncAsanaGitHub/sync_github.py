@@ -25,7 +25,6 @@ def checking_request(events):
     try:
         request_logger.info(events)
         for event in events:
-            print(event)
             if event.get('parent') != 1127318215881837:
                 if event.get('type') == 'task':
                     if event.get('action') == 'added':
@@ -84,9 +83,8 @@ def delete_task(event):
 def add_comment(story):
     try:
         request_logger.info('Add comment')
-        story = asanaClient.stories.find_by_id(story.get('resource'))
-        print(story)
         if story.get('type') == 'comment':
+            story = asanaClient.stories.find_by_id(story.get('resource'))
             github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
             if len(github_task_number) > 0:
                 issue = repoGit.get_issue(int(github_task_number[0].github_id))
