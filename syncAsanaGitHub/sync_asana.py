@@ -2,6 +2,7 @@ import asana
 import logging
 import os
 
+from django.http import HttpResponse
 from myproject.settings import ASANA_SETTINGS
 from syncAsanaGitHub.models import *
 
@@ -9,6 +10,66 @@ request_logger = logging.getLogger('django.request')
 
 if 'ASANA_ACCESS_TOKEN' in os.environ:
     client = asana.Client.access_token(os.environ['ASANA_ACCESS_TOKEN'])
+
+def checking_request(obj):
+    try:
+        if obj.get('action') == 'opened':
+                print('opened')
+                added_task(obj.get('issue'),obj.get('issue').get('assignee'))
+                return HttpResponse("OK", status=201)
+
+        if obj.get('action') == 'edited':
+            if obj.get('issue'):
+                    print('edited issue')
+                    changed_task(obj.get('issue'))
+                    return HttpResponse("OK", status=200)
+            if obj.get('label'):
+                    print('edited label')
+                    changed_status(obj.get('label'))
+                    return HttpResponse("OK", status=200)
+
+        if obj.get('action') == 'deleted':
+                if obj.get('issue'):
+                    print('deleted issue')
+                    delete_task(obj.get('issue'))
+                    return HttpResponse("OK", status=204)
+                if obj.get('label'):
+                    print('deleted issue')
+                    deleted_status(obj.get('label'))
+                    return HttpResponse("OK", status=204)
+
+        if obj.get('action') == 'closed' or obj.get('action') == 'reopened':
+                print('Edit status task')
+                closed_task(obj.get('issue'))
+                return HttpResponse("OK", status=200)
+
+        if obj.get('action') == 'created':
+                if obj.get('comment'):
+                    print('created comment')
+                    added_comment_to_task(obj.get('issue'),obj.get('comment'))
+                    return HttpResponse("OK", status=201)
+                if obj.get('label'):
+                    print('created label')
+                    added_status(obj.get('label'))
+                    return HttpResponse("OK", status=201)
+
+        if obj.get('action') == 'labeled' or obj.get('action') == 'unlabeled':
+                if obj.get('issue').get('labels'):
+                    print('Change status task')
+                    changed_status_of_task(obj.get('issue'), obj.get('issue').get('labels'))
+                    return  HttpResponse("OK",status=200)
+        if obj.get('action') == 'assigned' or obj.get('action') == 'unassigned':
+                if obj.get('issue').get('assignees'):
+                    print('assigned')
+                assigned_task(obj.get('issue'),obj.get('issue').get('assignees'))
+                return HttpResponse("OK", status=200)
+
+
+    except AttributeError as err:
+        request_logger.info("Error - %s"%err)
+        return HttpResponse("Error - Bad request",status=500)
+    return HttpResponse("OK", status=200)
+
 
 def added_task(obj,assignee):
     """This function create new task in asana"""

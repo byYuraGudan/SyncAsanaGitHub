@@ -3,8 +3,10 @@ import json
 import logging
 
 from github import Github
+from django.http import HttpResponse
 from syncAsanaGitHub.models import  IdentityID
-from syncAsanaGitHub.json_convert import json2obj
+from myproject.settings import ASANA_SETTINGS
+
 
 import asana
 
@@ -20,27 +22,55 @@ if 'GITHUB_ACCESS_TOKEN' in os.environ:
     repoGit = gitClient.get_repo("byYuraGudan/SyncAsanaGitHub")
 
 
-def create_issue(asanaTask):
-    currentTask = asanaClient.tasks.find_by_id(asanaTask.resource)
-    currentTask = json2obj(json.dumps(currentTask))
-    new_issue = repoGit.create_issue(title=currentTask.name, body=currentTask.notes)
-    IdentityID.objects.create(asana_id=asanaTask.resource, github_id=new_issue.number)
-    request_logger.info(currentTask)
-    request_logger.info(new_issue)
+def create_issue(event):
+    if len(list(IdentityID.objects.filter(asana_id=event.get('resource')))) > 0:
+        return HttpResponse("OK",status=200)
+    else:
+        task = asanaClient.tasks.find_by_id(event.get('resource'))
+        print("%s"%(task))
+        new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
+        IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
+        request_logger.info(task)
+        request_logger.info(new_issue)
+        return HttpResponse("Create issue",status=201)
 
-def change_issue(asanaTask):
-    currentTask = asanaClient.tasks.find_by_id(asanaTask.resource)
-    currentTask = json2obj(json.dumps(currentTask))
 
-def check_request(events):
+def change_issue(event):
+    task = asanaClient.tasks.find_by_id(event.get('resource'))
+    print("%s"%(task))
+    github_task_number = list(IdentityID.objects.filter(asana_id = task.get('id')))
+    if len(github_task_number) > 0:
+        print(github_task_number[0].github_id)
+        issue = repoGit.get_issue(int(github_task_number[0].github_id))
+        issue.edit(title=task.get('name'),
+                   body=task.get('notes'),
+                   state= 'closed' if task.get('completed') else 'opened',)
+                   # assignees=,
+                   # labels=)
+        return HttpResponse("Issue chanched",status=200)
+
+
+
+
+def checking_request(events):
     try:
         request_logger.info(events)
         if len(events) > 0:
             for event in events:
-                if event.type == "task":
-                    task_event(event)
+                print(event)
+                if event.get('parent') != 1127318215881837:
+                    if event.get('type') == 'task':
+                        if event.get('action') == 'added':
+                            request_logger.info('create task')
+                            return create_issue(event)
+                        if event.get('action') == 'changed':
+                            return change_issue(event)
+                        if event.get('action') == 'deleted':
+                            pass
     except AttributeError as err:
         request_logger.info("Error - %s"%err)
+        return HttpResponse("Error", status=500)
+    return HttpResponse("OK")
 
 
 def task_event(event):

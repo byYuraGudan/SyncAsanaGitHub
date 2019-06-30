@@ -22,11 +22,12 @@ request_logger = logging.getLogger('django.request')
 def hello(request):
     # If request reached this point we are in a good shape
     # Process the GitHub events
+    request_logger.info("Webhooks with github")
     return HttpResponse("OK",status=200)
 
 @require_POST
 @csrf_exempt
-def github(request):
+def github_webhooks(request):
     request_logger.info(request.body)
     # Verify if request came from GitHub
     forwarded_for = u'{}'.format(request.META.get('HTTP_X_FORWARDED_FOR'))
@@ -55,71 +56,17 @@ def github(request):
     request_logger.info(request.body)
     obj = json.loads(request.body)
 
-    try:
-        if obj.get('action') == 'opened':
-                print('opened')
-                sync_asana.added_task(obj.get('issue'),obj.get('issue').get('assignee'))
-                return HttpResponse("OK", status=201)
-
-        if obj.get('action') == 'edited':
-            if obj.get('issue'):
-                    print('edited issue')
-                    sync_asana.changed_task(obj.get('issue'))
-                    return HttpResponse("OK", status=200)
-            if obj.get('label'):
-                    print('edited label')
-                    sync_asana.changed_status(obj.get('label'))
-                    return HttpResponse("OK", status=200)
-
-        if obj.get('action') == 'deleted':
-                if obj.get('issue'):
-                    print('deleted issue')
-                    sync_asana.delete_task(obj.get('issue'))
-                    return HttpResponse("OK", status=204)
-                if obj.get('label'):
-                    print('deleted issue')
-                    sync_asana.deleted_status(obj.get('label'))
-                    return HttpResponse("OK", status=204)
-
-        if obj.get('action') == 'closed' or obj.get('action') == 'reopened':
-                print('Edit status task')
-                sync_asana.closed_task(obj.get('issue'))
-                return HttpResponse("OK", status=200)
-
-        if obj.get('action') == 'created':
-                if obj.get('comment'):
-                    print('created comment')
-                    sync_asana.added_comment_to_task(obj.get('issue'),obj.get('comment'))
-                    return HttpResponse("OK", status=201)
-                if obj.get('label'):
-                    print('created label')
-                    sync_asana.added_status(obj.get('label'))
-                    return HttpResponse("OK", status=201)
-
-        if obj.get('action') == 'labeled' or obj.get('action') == 'unlabeled':
-                if obj.get('issue').get('labels'):
-                    print('Change status task')
-                    sync_asana.changed_status_of_task(obj.get('issue'), obj.get('issue').get('labels'))
-                    return  HttpResponse("OK",status=200)
-        if obj.get('action') == 'assigned' or obj.get('action') == 'unassigned':
-                if obj.get('issue').get('assignees'):
-                    print('assigned')
-                sync_asana.assigned_task(obj.get('issue'),obj.get('issue').get('assignees'))
-                return HttpResponse("OK", status=200)
+    return sync_asana.checking_request(obj)
 
 
-    except AttributeError as err:
-        request_logger.info("Error - %s"%err)
-        return HttpResponse("Error - Bad request",status=500)
-    return HttpResponse("OK", status=200)
 
+@require_POST
 @csrf_exempt
-def asana(request):
+def asana_webhooks(request):
     request_logger.info(request.body)
-    # if request.method == "POST":
-    #     body = json2obj(request.body)
-    #     sync_github.check_request(body.events)
-    return HttpResponse("OK",status=200)
+    events = json.loads(request.body)
+    return sync_github.checking_request(events.get('events'))
+
 
 @require_POST
 @csrf_exempt

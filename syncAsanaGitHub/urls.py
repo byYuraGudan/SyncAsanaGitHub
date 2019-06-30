@@ -4,9 +4,7 @@ from django.conf.urls import url
 from syncAsanaGitHub import views
 
 urlpatterns = [
-    url(r'^hello/$', views.hello, name='hello'),
-    url(r'^github/',views.github,name='github'),
-    path('',views.index,name='index'),
-    # url(r'^asana/$', views.asana, name='asana'),
-    url(r'^asanawebhooks/$', views.asana, name='asanawebhooks'),
+    path('', views.index, name='index'),
+    url(r'^github/',views.hello,name='github'),
+    url(r'^asanawebhooks/$', views.asana_webhooks, name='asanawebhooks'),
 ]
