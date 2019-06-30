@@ -35,6 +35,9 @@ def checking_request(events):
                         change_task(event)
                     if event.get('action') == 'deleted':
                         delete_task(event)
+                if events.get('type') == 'story':
+                    if event.get('action') == 'added':
+                        add_comment(event)
     except AttributeError as err:
         request_logger.info("Error - %s"%err)
 
@@ -44,7 +47,13 @@ def create_task(event):
             request_logger.info("This task existed")
         else:
             task = asanaClient.tasks.find_by_id(event.get('resource'))
-            new_issue = repoGit.create_issue(title=task.get('name'), body=task.get('notes'))
+            asana_user_id = task.get('assignee').get('id') if task.get('assignee') != None else -1
+            assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
+            new_issue = repoGit.create_issue(title=task.get('name'),
+                                             body=task.get('notes'),
+                                             state='closed' if task.get('completed') else 'opened',
+                                             assignees=[assignee[0].github_user_name if len(assignee) > 0 else ''],
+                                             labels=[task.get('memberships')[0].get('section').get('name')])
             IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
     except Exception as e:
         request_logger.info(e)
@@ -56,7 +65,6 @@ def change_task(event):
         request_logger.info("Change issue")
         issue = repoGit.get_issue(int(github_task_number[0].github_id))
         asana_user_id = task.get('assignee').get('id') if task.get('assignee') != None else -1
-        print(asana_user_id)
         assignee = list(SyncUsers.objects.filter(asana_user_id=asana_user_id))
         print("List assignee issue")
         for i in assignee:
@@ -74,7 +82,13 @@ def delete_task(event):
     IdentityID.objects.filter(github_id=event.get('resource')).delete()
 
 
-def add_comment(comment):
-    pass
+def add_comment(story):
+    story = asanaClient.stories.find_by_id(story.get('id'))
+    if story.get('type') == 'comment':
+        github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
+        if len(github_task_number) > 0:
+            request_logger.info("add comment")
+            issue = repoGit.get_issue(int(github_task_number[0].github_id))
+            issue.create_comment(story.get('text'))
 
 
