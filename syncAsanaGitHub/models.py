@@ -14,3 +14,7 @@ class SyncUsers(models.Model):
 class StatusTask(models.Model):
     asana_status_id = models.CharField(max_length=100)
     github_status_id = models.CharField(max_length=100)
+
+class CommentsTask(models.Model):
+    asana_comment_id = models.CharField(max_length=100)
+    github_comment_id = models.CharField(max_length=100)

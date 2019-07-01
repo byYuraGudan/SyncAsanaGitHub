@@ -132,12 +132,16 @@ def closed_task(obj):
 def added_comment_to_task(obj,comment):
     """This function checked number issue in github and id task.
         Next step added new comment from github to asana task"""
-    asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
-    if len(asanaID) > 0:
-        client.tasks.add_comment(asanaID[0].asana_id,params={'text':comment['body']})
-        request_logger.info("Comment, add to task (%s)"%asanaID[0].asana_id)
+    if len(list(CommentsTask.objects.filter(github_comment_id=comment.get('id')))) > 0:
+        request_logger.info('Comment exist')
     else:
-        request_logger.info("Comment, not add to task")
+        asanaID = list(IdentityID.objects.filter(github_id=obj['number']))
+        if len(asanaID) > 0:
+            comment = client.tasks.add_comment(asanaID[0].asana_id,params={'text':comment['body']})
+            CommentsTask.objects.create(asana_comment_id=comment.get('id'),github_comment_id=comment.get('id'))
+            request_logger.info("Comment, add to task (%s)"%asanaID[0].asana_id)
+        else:
+            request_logger.info("Comment, not add to task")
 
 def added_status(status):
     """This function added status(section) in asana"""

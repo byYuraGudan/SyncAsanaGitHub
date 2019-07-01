@@ -4,7 +4,7 @@ import logging
 
 from github import Github
 from django.http import HttpResponse
-from syncAsanaGitHub.models import  IdentityID,StatusTask,SyncUsers
+from syncAsanaGitHub.models import  *
 from myproject.settings import ASANA_SETTINGS
 
 
@@ -86,10 +86,14 @@ def add_comment(event):
         request_logger.info('Add comment')
         story = asanaClient.stories.find_by_id(event.get('resource'))
         if story.get('type') == 'comment':
-            github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
-            if len(github_task_number) > 0:
-                issue = repoGit.get_issue(int(github_task_number[0].github_id))
-                issue.create_comment(story.get('text'))
+            if len(list(CommentsTask.objects.filter(asana_comment_id=story.get('id')))) > 0:
+                request_logger.info("Comment exist")
+            else:
+                github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
+                if len(github_task_number) > 0:
+                    issue = repoGit.get_issue(int(github_task_number[0].github_id))
+                    comment = issue.create_comment(story.get('text'))
+                    CommentsTask.objects.create(asana_comment_id = event.get('resource'),github_comment_id = comment.id)
     except asana.error.NotFoundError as err:
         request_logger.info('Error - %s'%err)
 
