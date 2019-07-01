@@ -52,7 +52,10 @@ def create_task(event):
                                              body=task.get('notes'),
                                              assignees=[assignee[0].github_user_name if len(assignee) > 0 else ''],
                                              labels=[task.get('memberships')[0].get('section').get('name')])
-            IdentityID.objects.create(asana_id=event.get('resource'), github_id=new_issue.number)
+            IdentityID.objects.create(asana_id=event.get('resource'),
+                                      github_id=new_issue.number,
+                                      asana_version=0,
+                                      github_version=0)
     except Exception as e:
         request_logger.info(e)
 

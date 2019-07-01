@@ -82,7 +82,10 @@ def added_task(obj,assignee):
                      'projects':[ASANA_SETTINGS['project']['id']],
                      'assignee':asana_user_id[0].asana_user_id if len(asana_user_id) > 0 else None}
         taskAsana = client.tasks.create_in_workspace(ASANA_SETTINGS.get('workspace').get('id'), params=paramTask)
-        IdentityID.objects.create(github_id=obj['number'], asana_id=taskAsana['id'])
+        IdentityID.objects.create(github_id=obj['number'],
+                                  asana_id=taskAsana['id'],
+                                  asana_version=0,
+                                  github_version=0)
         changed_status_of_task(obj, obj.get('labels'))
 
 def changed_task(obj):
