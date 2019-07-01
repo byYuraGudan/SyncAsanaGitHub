@@ -80,11 +80,11 @@ def delete_task(event):
     IdentityID.objects.filter(github_id=event.get('resource')).delete()
 
 
-def add_comment(story):
+def add_comment(event):
     try:
         request_logger.info('Add comment')
+        story = asanaClient.stories.find_by_id(event.get('resource'))
         if story.get('type') == 'comment':
-            story = asanaClient.stories.find_by_id(story.get('resource'))
             github_task_number = list(IdentityID.objects.filter(asana_id=story.get('target').get('id')))
             if len(github_task_number) > 0:
                 issue = repoGit.get_issue(int(github_task_number[0].github_id))
