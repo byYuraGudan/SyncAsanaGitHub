@@ -15,7 +15,7 @@ idna==2.8
 ipaddress==1.0.22
 Markdown==3.1.1
 oauthlib==3.0.1
-Pillow==6.0.0
+Pillow==6.2.0
 psycopg2==2.8.2
 PyGithub==1.43.7
 Pygments==2.4.2
